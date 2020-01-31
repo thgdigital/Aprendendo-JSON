@@ -7,48 +7,46 @@
 //
 
 import UIKit
+import Alamofire
 
 class ViewController: UIViewController {
     
     let url = URL(string: "http://api.fixer.io/latest")
-    let task = URLSession.shared.dataTask(with: url!) { (data, response, error) in
-    
-        if error != nil {
-            print("ERRO")
-        } else {
+   
+    func fetch() {
         
-            if let content = data{
+         Alamofire.request(url).responseJSON { response in
+            switch response.result {
+            
+            case .success:
                 
-                do{
-                
-                    let myJson = try JSONSerialization.jsonObject(with: content, options: JSONSerialization.ReadingOptions.mutableContainers)
-                    
-                    if let rates = myJson["rates"] as? NSDictionary {
-                        
-                        if let currency = rates ["GBP"] {
-                            
-                            print (currency)
-                        }
-                    
-                   }
+                let myJson = try! JSONSerialization.jsonObject(with: response.data!, options: JSONSerialization.ReadingOptions.mutableContainers)  as? [String: Any]
+                print(myJson)
+//                if let rates = myJson?["rates"] as? [String: Any] {
+//
+//                    if let currency = rates ["GBP"] {
+//
+//                        print (currency)
+//                    }
+//                }
+            case .failure(let error):
+                print(error)
             }
-        }
-        
-       task.resume()
+         }
     }
     
-
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        fetch()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
+    
+    
 }
 
